@@ -11,17 +11,24 @@
 
 using namespace std;
 
+void logger_test();
+
 int main(int argc, char **argv)
 {
 	logger_test();
-
 	return EXIT_SUCCESS;
 }
 
 void logger_test()
 {
+	char *s = (char*) calloc(20, sizeof(char));
 	BC_Logger *my_log = new BC_Logger("log.txt");
-	my_log->log_event("Log this");
+	int i;
+	for(i = 0; i < 10; i++)
+	{
+		sprintf(s, "Event %d", i);
+		my_log->log_event(s);
+	}
+	free(s);
 	delete my_log;
 }
-

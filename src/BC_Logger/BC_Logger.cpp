@@ -29,21 +29,38 @@ BC_Logger::~BC_Logger()
 
 int BC_Logger::log_event(const char event[])
 {
-	char *ts = (char*) calloc(25, sizeof(char));
-	char *ls = (char*) calloc(25 + strlen(event) + 1, sizeof(char));
+	/* String to hold date and time */
+	char *ts = (char*) calloc(23, sizeof(char));
+	/* String to hold microseconds */
+	char *ms = (char*) calloc(7, sizeof(char));
+	/* String to hold date, time, microseconds, and event */
+	char *ls = (char*) calloc(30 + strlen(event) + 1, sizeof(char));
+
+	/* Get date and time */
 	time_t now = time(NULL);
+	strftime(ts, 23, "%Y-%m-%d %H:%M:%S:", localtime(&now));
 
-	strftime(ts, 25, "%Y-%m-%d %I:%M:%S %p: ", localtime(&now));
+	/* Get microseconds */
+	struct timeval tvp;
+	gettimeofday(&tvp, NULL);
+	sprintf(ms, "%ld", tvp.tv_usec);
 
+	/* Build the string to insert in log file */
 	strcpy(ls, ts);
+	strcat(ls, ms);
+	strcat(ls, " ");
 	strcat(ls, event);
 	strcat(ls, "\n");
 
+	/* Write event to log file */
 	fwrite(ls, sizeof(char), strlen(ls), lfp);
 
+	/* Free all dynamically allocated memory */
 	free(ts);
+	free(ms);
 	free(ls);
 
+	// TODO: handle any possible errors
 	return 1;
 }
 
