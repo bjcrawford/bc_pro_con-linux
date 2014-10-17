@@ -61,6 +61,14 @@ int BC_Buffer::isEmpty()
 
 void BC_Buffer::insert(int item)
 {
+	
+	sem_wait(&available);
+	this->insert_internal(item);
+	sem_post(&unavailable);
+}
+
+void BC_Buffer::insert_internal(int item)
+{
 	int num;
 	char *event = (char*) calloc(50, sizeof(char));
 	sem_wait(&available);
@@ -76,6 +84,15 @@ void BC_Buffer::insert(int item)
 }
 
 int BC_Buffer::remove()
+{
+	sem_wait(&unavailable);
+	int item = this->remove_internal();
+	sem_post(&available);
+
+	return item;
+}
+
+int BC_Buffer::remove_internal()
 {
 	int num;
 	char *event = (char*) calloc(50, sizeof(char));

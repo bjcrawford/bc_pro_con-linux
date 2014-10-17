@@ -36,7 +36,9 @@ class BC_Buffer
 		int isFull();
 		int isEmpty();
 		void insert(int);
+		void insert_internal(int);
 		int remove();
+		int remove_internal();
 };
 
 #endif /* BC_BUFFER_H_ */
