@@ -10,8 +10,8 @@
 #ifndef BC_CONSUMER_H_
 #define BC_CONSUMER_H_
 
-#include "../BC_Buffer/BC_Buffer.h"
-#include "../BC_Logger/BC_Logger.h"
+#include "../BC_Buffer/BC_Buffer.hpp"
+#include "../BC_Logger/BC_Logger.hpp"
 
 class BC_Consumer
 {

@@ -14,7 +14,7 @@
 #include <pthread.h>
 #include <semaphore.h>
 
-#include "../BC_Logger/BC_Logger.h"
+#include "../BC_Logger/BC_Logger.hpp"
 
 class BC_Buffer
 {

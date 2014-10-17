@@ -9,7 +9,7 @@
 
 using namespace std;
 
-#include "BC_Consumer.h"
+#include "BC_Consumer.hpp"
 
 BC_Consumer::BC_Consumer(int id, BC_Buffer *buffer, BC_Logger *logger)
 {

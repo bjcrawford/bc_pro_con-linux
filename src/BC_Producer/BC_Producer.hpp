@@ -13,8 +13,8 @@
 #include <stdlib.h>
 #include <time.h>
 
-#include "../BC_Buffer/BC_Buffer.h"
-#include "../BC_Logger/BC_Logger.h"
+#include "../BC_Buffer/BC_Buffer.hpp"
+#include "../BC_Logger/BC_Logger.hpp"
 
 class BC_Producer
 {

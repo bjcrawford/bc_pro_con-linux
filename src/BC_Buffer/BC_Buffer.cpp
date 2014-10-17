@@ -9,7 +9,7 @@
 
 using namespace std;
 
-#include "BC_Buffer.h"
+#include "BC_Buffer.hpp"
 #include <semaphore.h>
 
 

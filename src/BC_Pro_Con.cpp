@@ -7,10 +7,10 @@
    Description:
 */
 
-#include "BC_Buffer/BC_Buffer.h"
-#include "BC_Consumer/BC_Consumer.h"
-#include "BC_Logger/BC_Logger.h"
-#include "BC_Producer/BC_Producer.h"
+#include "BC_Buffer/BC_Buffer.hpp"
+#include "BC_Consumer/BC_Consumer.hpp"
+#include "BC_Logger/BC_Logger.hpp"
+#include "BC_Producer/BC_Producer.hpp"
 
 #include <iostream>
 #include <pthread.h>

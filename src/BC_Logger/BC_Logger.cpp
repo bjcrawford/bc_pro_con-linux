@@ -9,7 +9,7 @@
 
 using namespace std;
 
-#include "BC_Logger.h"
+#include "BC_Logger.hpp"
 
 BC_Logger::BC_Logger(const char log_file[])
 {

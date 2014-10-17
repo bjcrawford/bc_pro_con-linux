@@ -9,7 +9,7 @@
 
 using namespace std;
 
-#include "BC_Producer.h"
+#include "BC_Producer.hpp"
 
 BC_Producer::BC_Producer(int id, BC_Buffer *buffer, BC_Logger *logger)
 {
