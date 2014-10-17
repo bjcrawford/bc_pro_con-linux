@@ -10,7 +10,7 @@
 #ifndef BC_LOGGER_H_
 #define BC_LOGGER_H_
 
-#include <iostream>
+#include <pthread.h>
 #include <stdio.h>
 #include <stdlib.h>
 #include <string.h>
@@ -20,6 +20,7 @@ class BC_Logger
 {
 	private:
 		FILE *lfp;
+		pthread_mutex_t lock;
 
 	public:
 		BC_Logger(const char[]);

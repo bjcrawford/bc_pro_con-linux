@@ -6,25 +6,21 @@
    Course: CIS 3207, Sec 2
    Description:
 */
-#include <iostream>
+
 using namespace std;
 
 #include "BC_Logger.h"
 
 BC_Logger::BC_Logger(const char log_file[])
 {
-	if(lfp == NULL)
-	{
-		lfp = fopen(log_file, "a");
-	}
+	lfp = fopen(log_file, "a");
+	pthread_mutex_init(&lock, NULL);
 }
 
 BC_Logger::~BC_Logger()
 {
-	if(lfp != NULL)
-	{
-		fclose(lfp);
-	}
+	fclose(lfp);
+	pthread_mutex_destroy(&lock);
 }
 
 int BC_Logger::log_event(const char event[])
@@ -53,7 +49,9 @@ int BC_Logger::log_event(const char event[])
 	strcat(ls, "\n");
 
 	/* Write event to log file */
+	pthread_mutex_lock(&lock);
 	fwrite(ls, sizeof(char), strlen(ls), lfp);
+	pthread_mutex_unlock(&lock);
 
 	/* Free all dynamically allocated memory */
 	free(ts);
