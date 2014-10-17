@@ -36,36 +36,42 @@ int main(int argc, char **argv)
 void pro_con_solution()
 {
 	printf("Main thread Start\n");
+	int i;
 	BC_Logger *logger;
 	BC_Buffer *buffer;
-	BC_Producer *producer;
-	BC_Consumer *consumer;
-	pthread_t threads[2];
+	BC_Producer *producer[4];
+	BC_Consumer *consumer[3];
+	pthread_t producer_threads[4];
+	pthread_t consumer_threads[3];
 
 	logger = new BC_Logger(log_file);
 	buffer = new BC_Buffer(BUFFER_SIZE, logger);
-	producer = new BC_Producer(0, buffer, logger);
-	consumer = new BC_Consumer(0, buffer, logger);
 
-	if(pthread_create(&(threads[0]), NULL, (void* (*)(void*)) &produce, producer))
-	{
-		perror("");
-		exit(-1);
-	}
-	if(pthread_create(&(threads[1]), NULL, (void* (*)(void*)) &consume, consumer))
-		{
-			perror("");
-			exit(-1);
-		}
-	pthread_join(threads[0], NULL);
-	pthread_join(threads[1], NULL);
+	for(i = 0; i < 4; i++)
+		producer[i] = new BC_Producer(i, buffer, logger);
+
+	for(i = 0; i < 3; i++)
+		consumer[i] = new BC_Consumer(i, buffer, logger);
+
+	for(i = 0; i < 4; i++)
+		pthread_create(&(producer_threads[i]), NULL, (void* (*)(void*)) &produce, producer[i]);
+
+	for(i = 0; i < 3; i++)
+		pthread_create(&(consumer_threads[i]), NULL, (void* (*)(void*)) &consume, consumer[i]);
+
+	for(i = 0; i < 4; i++)
+		pthread_join(producer_threads[i], NULL);
+
+	for(i = 0; i < 3; i++)
+		pthread_join(consumer_threads[i], NULL);
+
 	printf("Main thread finished\n");
 }
 
 void *produce(BC_Producer *producer)
 {
 	int i;
-	for(i = 0; i < 25; i++)
+	for(i = 0; i < 20; i++)
 		producer->produce();
 	pthread_exit(NULL);
 }
