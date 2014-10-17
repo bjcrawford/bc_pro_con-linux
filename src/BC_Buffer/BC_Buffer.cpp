@@ -71,13 +71,11 @@ void BC_Buffer::insert_internal(int item)
 {
 	int num;
 	char *event = (char*) calloc(50, sizeof(char));
-	sem_wait(&available);
 	pthread_mutex_lock(&lock);
 	buffer[last % size] = item;
 	last++;
 	num = last - first;
 	pthread_mutex_unlock(&lock);
-	sem_post(&unavailable);
 	sprintf(event, "Buffer: %d inserted, num: %d, first: %d, last: %d", item, num, first, last);
 	logger->log_event(event);
 	free(event);
@@ -96,13 +94,11 @@ int BC_Buffer::remove_internal()
 {
 	int num;
 	char *event = (char*) calloc(50, sizeof(char));
-	sem_wait(&unavailable);
 	pthread_mutex_lock(&lock);
 	int item = buffer[first % size];
 	first++;
 	num = last - first;
 	pthread_mutex_unlock(&lock);
-	sem_post(&available);
 	sprintf(event, "Buffer: %d removed, num: %d, first: %d, last: %d", item, num, first, last);
 	logger->log_event(event);
 	free(event);
