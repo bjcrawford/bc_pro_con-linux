@@ -29,6 +29,9 @@ class BC_Buffer
 		sem_t available;         /* Number of available slots in buffer */
 		sem_t unavailable;       /* Number of unavailable slots in buffer */
 
+		void insert_internal(int);
+		int remove_internal();
+
 	public:
 		BC_Buffer(int, BC_Logger*);
 		virtual ~BC_Buffer();
@@ -36,9 +39,7 @@ class BC_Buffer
 		int isFull();
 		int isEmpty();
 		void insert(int);
-		void insert_internal(int);
 		int remove();
-		int remove_internal();
 };
 
 #endif /* BC_BUFFER_H_ */
