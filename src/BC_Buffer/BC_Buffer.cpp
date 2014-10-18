@@ -48,14 +48,14 @@ void BC_Buffer::insert(void *item)
 void BC_Buffer::insert_internal(void *item)
 {
 	int f, l;
-	char *event = (char*) calloc(60, sizeof(char));
+	char *event = (char*) calloc(62, sizeof(char));
 	pthread_mutex_lock(&lock);
 	buffer[last % size] = item;
 	last++;
 	f = first;
 	l - last;
 	pthread_mutex_unlock(&lock);
-	sprintf_s(event, 59, "Buffer: %d inserted, l - f: %d, f: %d, l: %d", *(int*)item, l - f, f, l);
+	sprintf_s(event, 62, "Buffer: %d inserted, l - f: %d, f: %d, l: %d", *(int*)item, l - f, f, l);
 	logger->log_event(event);
 	free(event);
 }
@@ -73,7 +73,7 @@ void *BC_Buffer::remove_internal()
 {
 	int f, l;
 	void *item;
-	char *event = (char*) calloc(60, sizeof(char));
+	char *event = (char*) calloc(62, sizeof(char));
 	pthread_mutex_lock(&lock);
 	item = buffer[first % size];
 	buffer[first % size] = NULL;
@@ -81,7 +81,7 @@ void *BC_Buffer::remove_internal()
 	f = first;
 	l = last;
 	pthread_mutex_unlock(&lock);
-	sprintf_s(event, 59, "Buffer: %d removed, l - f: %d, f: %d, l: %d", *(int*)item, l - f, f, l);
+	sprintf_s(event, 62, "Buffer: %d removed, l - f: %d, f: %d, l: %d", *(int*)item, l - f, f, l);
 	logger->log_event(event);
 	free(event);
 
