@@ -28,7 +28,7 @@ BC_Buffer::BC_Buffer(size_t size, BC_Logger *logger)
 
 BC_Buffer::~BC_Buffer()
 {
-	int i;
+	size_t i;
 	for(i = first; i < last; i++)
 		free(buffer[i % size]);
 	free(buffer);
@@ -53,9 +53,9 @@ void BC_Buffer::insert_internal(void *item)
 	buffer[last % size] = item;
 	last++;
 	f = first;
-	l - last;
+	l = last;
 	pthread_mutex_unlock(&lock);
-	sprintf_s(event, 62, "Buffer: %d inserted, l - f: %d, f: %d, l: %d", *(int*)item, l - f, f, l);
+	snprintf(event, 62, "Buffer: %d inserted, l - f: %d, f: %d, l: %d", *(int*)item, l - f, f, l);
 	logger->log_event(event);
 	free(event);
 }
@@ -81,7 +81,7 @@ void *BC_Buffer::remove_internal()
 	f = first;
 	l = last;
 	pthread_mutex_unlock(&lock);
-	sprintf_s(event, 62, "Buffer: %d removed, l - f: %d, f: %d, l: %d", *(int*)item, l - f, f, l);
+	snprintf(event, 62, "Buffer: %d removed, l - f: %d, f: %d, l: %d", *(int*)item, l - f, f, l);
 	logger->log_event(event);
 	free(event);
 

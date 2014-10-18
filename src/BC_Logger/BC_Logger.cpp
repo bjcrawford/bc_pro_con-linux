@@ -44,14 +44,14 @@ int BC_Logger::log_event(const char event[])
 	/* Get microseconds */
 	struct timeval tvp;
 	gettimeofday(&tvp, NULL);
-	sprintf_s(ms, 7, "%ld", tvp.tv_usec);
+	snprintf(ms, 7, "%ld", tvp.tv_usec);
 
 	/* Build the string to insert in log file */
-	strcpy_s(fs, fs_size, dts);
-	strcat_s(fs, fs_size, ms);
-	strcat_s(fs, fs_size, " ");
-	strcat_s(fs, fs_size, event);
-	strcat_s(fs, fs_size, "\n");
+	strcpy(fs, dts);
+	strcat(fs, ms);
+	strcat(fs, " ");
+	strcat(fs, event);
+	strcat(fs, "\n");
 
 	/* Write event to log file */
 	pthread_mutex_lock(&lock);

@@ -91,7 +91,7 @@ void logger_test()
 	int i;
 	for(i = 0; i < 10; i++)
 	{
-		sprintf(s, "Event %d", i);
+		snprintf(s, 20, "Event %d", i);
 		my_log->log_event(s);
 	}
 	free(s);

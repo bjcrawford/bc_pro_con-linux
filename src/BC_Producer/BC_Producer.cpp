@@ -30,7 +30,7 @@ void BC_Producer::produce()
 	srand(clock() * time(NULL));
 	*item = rand() % 10000;
 	buffer->insert((void*) item);
-	sprintf_s(event, 62, "Producer %d: %d inserted into buffer", this->id, *item);
+	snprintf(event, 62, "Producer %d: %d inserted into buffer", this->id, *item);
 	logger->log_event(event);
 	free(event);
 }
