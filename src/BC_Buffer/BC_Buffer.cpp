@@ -81,7 +81,7 @@ void *BC_Buffer::remove_internal()
 	f = first;
 	l = last;
 	pthread_mutex_unlock(&lock);
-	sprintf(event, 59, "Buffer: %d removed, l - f: %d, f: %d, l: %d", *(int*)item, l - f, f, l);
+	sprintf_s(event, 59, "Buffer: %d removed, l - f: %d, f: %d, l: %d", *(int*)item, l - f, f, l);
 	logger->log_event(event);
 	free(event);
 
