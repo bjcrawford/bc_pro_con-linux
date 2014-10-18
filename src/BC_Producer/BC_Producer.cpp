@@ -16,7 +16,6 @@ BC_Producer::BC_Producer(int id, BC_Buffer *buffer, BC_Logger *logger)
 	this->id = id;
 	this->buffer = buffer;
 	this->logger = logger;
-	srand((time_t) time(NULL));
 }
 
 BC_Producer::~BC_Producer()
@@ -27,6 +26,7 @@ BC_Producer::~BC_Producer()
 void BC_Producer::produce()
 {
 	char *event = (char*) calloc(50, sizeof(char));
+	srand(clock() * time(NULL));
 	int item = rand() % 10000;
 	buffer->insert(item);
 	sprintf(event, "Producer %d: %d inserted into buffer", this->id, item);
