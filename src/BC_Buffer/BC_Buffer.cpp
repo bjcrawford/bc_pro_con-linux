@@ -13,12 +13,13 @@ using namespace std;
 #include <semaphore.h>
 
 
-BC_Buffer::BC_Buffer(int size, BC_Logger *logger)
+BC_Buffer::BC_Buffer(size_t size, BC_Logger *logger)
 {
 	first = last = 0;
 	this->size = size;
 	this->logger = logger;
-	buffer = (int*) calloc(this->size, sizeof(int));
+	buffer = (void**) calloc(this->size, sizeof(void*));
+	pthread_mutexattr_t attr;
 	pthread_mutexattr_init(&attr);
 	pthread_mutex_init(&lock, &attr);
 	sem_init(&available, 0, this->size);
@@ -27,39 +28,16 @@ BC_Buffer::BC_Buffer(int size, BC_Logger *logger)
 
 BC_Buffer::~BC_Buffer()
 {
+	int i;
+	for(i = first; i < last; i++)
+		free(buffer[i % size]);
 	free(buffer);
 	pthread_mutex_destroy(&lock);
 	sem_destroy(&available);
 	sem_destroy(&unavailable);
 }
 
-/**
- * Checks if the buffer is full.
- * Returns 1 if the buffer is full, otherwise 0
- */
-int BC_Buffer::isFull()
-{
-	int result = 0;
-	pthread_mutex_lock(&lock);
-	if((last - first) == size)
-		result = 1;
-	pthread_mutex_unlock(&lock);
-
-	return result;
-}
-
-int BC_Buffer::isEmpty()
-{
-	int result = 0;
-	pthread_mutex_lock(&lock);
-	if((last - first == 0))
-		result = 1;
-	pthread_mutex_unlock(&lock);
-
-	return result;
-}
-
-void BC_Buffer::insert(int item)
+void BC_Buffer::insert(void *item)
 {
 	
 	sem_wait(&available);
@@ -67,39 +45,43 @@ void BC_Buffer::insert(int item)
 	sem_post(&unavailable);
 }
 
-void BC_Buffer::insert_internal(int item)
+void BC_Buffer::insert_internal(void *item)
 {
-	int num;
-	char *event = (char*) calloc(50, sizeof(char));
+	int f, l;
+	char *event = (char*) calloc(60, sizeof(char));
 	pthread_mutex_lock(&lock);
 	buffer[last % size] = item;
 	last++;
-	num = last - first;
+	f = first;
+	l - last;
 	pthread_mutex_unlock(&lock);
-	sprintf(event, "Buffer: %d inserted, l - f: %d, f: %d, l: %d", item, num, first, last);
+	sprintf_s(event, 59, "Buffer: %d inserted, l - f: %d, f: %d, l: %d", *(int*)item, l - f, f, l);
 	logger->log_event(event);
 	free(event);
 }
 
-int BC_Buffer::remove()
+void *BC_Buffer::remove()
 {
 	sem_wait(&unavailable);
-	int item = this->remove_internal();
+	void *item = this->remove_internal();
 	sem_post(&available);
 
 	return item;
 }
 
-int BC_Buffer::remove_internal()
+void *BC_Buffer::remove_internal()
 {
-	int num;
-	char *event = (char*) calloc(50, sizeof(char));
+	int f, l;
+	void *item;
+	char *event = (char*) calloc(60, sizeof(char));
 	pthread_mutex_lock(&lock);
-	int item = buffer[first % size];
+	item = buffer[first % size];
+	buffer[first % size] = NULL;
 	first++;
-	num = last - first;
+	f = first;
+	l = last;
 	pthread_mutex_unlock(&lock);
-	sprintf(event, "Buffer: %d removed, l - f: %d, f: %d, l: %d", item, num, first, last);
+	sprintf(event, 59, "Buffer: %d removed, l - f: %d, f: %d, l: %d", *(int*)item, l - f, f, l);
 	logger->log_event(event);
 	free(event);
 
