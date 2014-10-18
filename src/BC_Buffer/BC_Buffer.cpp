@@ -76,7 +76,7 @@ void BC_Buffer::insert_internal(int item)
 	last++;
 	num = last - first;
 	pthread_mutex_unlock(&lock);
-	sprintf(event, "Buffer: %d inserted, num: %d, first: %d, last: %d", item, num, first, last);
+	sprintf(event, "Buffer: %d inserted, l - f: %d, f: %d, l: %d", item, num, first, last);
 	logger->log_event(event);
 	free(event);
 }
@@ -99,7 +99,7 @@ int BC_Buffer::remove_internal()
 	first++;
 	num = last - first;
 	pthread_mutex_unlock(&lock);
-	sprintf(event, "Buffer: %d removed, num: %d, first: %d, last: %d", item, num, first, last);
+	sprintf(event, "Buffer: %d removed, l - f: %d, f: %d, l: %d", item, num, first, last);
 	logger->log_event(event);
 	free(event);
 
