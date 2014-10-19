@@ -1,10 +1,13 @@
-/* File: BC_Producer.h
-   Author: Brett Crawford
-   Date: 2014-10-18
-   Prof: Kwatny
-   TAs: Liang and Casey
-   Course: CIS 3207, Sec 2
-   Description: The header file for the producer class.
+/**
+ * @file BC_Producer.h
+ * @author Brett Crawford
+ * @brief A producer class header
+ * @details
+ *  Course: CIS 3207, Sec 2
+ *  Prof: Kwatny
+ *  TAs: Liang and Casey
+ *  Date: 2014-10-18
+ *  Description: The header for the producer class.
 */
 
 #ifndef BC_PRODUCER_H_

@@ -1,10 +1,13 @@
-/* File: BC_Consumer.h
-   Author: Brett Crawford
-   Date: 2014-
-   Prof: Kwatny
-   TAs: Liang and Casey
-   Course: CIS 3207, Sec 2
-   Description:
+/**
+ * @file BC_Consumer.h
+ * @author Brett Crawford
+ * @brief A consumer class header
+ * @details
+ *  Course: CIS 3207, Sec 2
+ *  Prof: Kwatny
+ *  TAs: Liang and Casey
+ *  Date: 2014-10-18
+ *  Description: The header for the consumer class.
 */
 
 #ifndef BC_CONSUMER_H_
@@ -16,9 +19,9 @@
 class BC_Consumer
 {
 	private:
-		int id;
-		BC_Buffer *buffer;
-		BC_Logger *logger;
+		int id;              /**< An identifier for the producer */
+		BC_Buffer *buffer;   /**< A pointer to the shared buffer */
+		BC_Logger *logger;   /**< A pointer to the shared logger */
 
 	public:
 		BC_Consumer(int, BC_Buffer*, BC_Logger*);
