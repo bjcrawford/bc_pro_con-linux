@@ -1,10 +1,13 @@
-/* File: BC_Pro_Con.cpp
-   Author: Brett Crawford
-   Date: 2014-
-   Prof: Kwatny
-   TAs: Liang and Casey
-   Course: CIS 3207, Sec 2
-   Description:
+/**
+ * @file BC_Pro_Con.cpp 
+ * @author Brett Crawford
+ * @brief A producer/consumer problem solution
+ * @details
+ *  Course: CIS 3207, Sec 2
+ *  Prof: Kwatny
+ *  TAs: Liang and Casey
+ *  Date: 2014-10-18
+ *  Description: 
 */
 
 #include "BC_Buffer/BC_Buffer.hpp"
@@ -22,20 +25,28 @@ using namespace std;
 
 const char log_file[] = "log.txt";
 
-void pro_con_solution();
-void *produce(BC_Producer*);
-void *consume(BC_Consumer*);
-void logger_test();
+struct produce_args
+{
+	size_t num;
+	BC_Producer *producer;
+};
 
+struct consume_args
+{
+	size_t num;
+	BC_Consumer *consumer;
+};
+
+void *produce(void*);
+void *consume(void*);
+
+/**
+ * The main function of the solution.
+*/
 int main(int argc, char **argv)
 {
-	pro_con_solution();
-	return EXIT_SUCCESS;
-}
-
-void pro_con_solution()
-{
 	printf("Main thread Start\n");
+
 	int i;
 	BC_Logger *logger;
 	BC_Buffer *buffer;
@@ -54,10 +65,20 @@ void pro_con_solution()
 		consumer[i] = new BC_Consumer(i, buffer, logger);
 
 	for(i = 0; i < 4; i++)
-		pthread_create(&(producer_threads[i]), NULL, (void* (*)(void*)) &produce, producer[i]);
+	{
+		struct produce_args *p_args = calloc(1, sizeof(produce_args));
+		p_args->num = 20;
+		p_args->producer = producer[i];
+		pthread_create(&(producer_threads[i]), NULL, (void* (*)(void*)) &produce, p_args);
+	}
 
 	for(i = 0; i < 3; i++)
-		pthread_create(&(consumer_threads[i]), NULL, (void* (*)(void*)) &consume, consumer[i]);
+	{
+		struct consume_args *c_args = calloc(1, sizeof(consume_args));
+		c_args->num = 25;
+		c_args->consumer = consumer[i];
+		pthread_create(&(consumer_threads[i]), NULL, (void* (*)(void*)) &consume, c_args);
+	}
 
 	for(i = 0; i < 4; i++)
 		pthread_join(producer_threads[i], NULL);
@@ -66,34 +87,34 @@ void pro_con_solution()
 		pthread_join(consumer_threads[i], NULL);
 
 	printf("Main thread finished\n");
+
+	return EXIT_SUCCESS;
 }
 
-void *produce(BC_Producer *producer)
+/**
+ * Uses a producer object to perform num productions.
+ *
+ * @param[in] num The number of productions to perform
+ * @param[in] producer A pointer to the producer object
+*/
+void *produce(size_t num, BC_Producer *producer)
 {
 	int i;
-	for(i = 0; i < 20; i++)
+	for(i = 0; i < num; i++)
 		producer->produce();
 	pthread_exit(NULL);
 }
 
-void *consume(BC_Consumer *consumer)
+/**
+ * Uses a consumer object to perform num consumptions.
+ *
+ * @param[in] num The number of consumptions to perform
+ * @param[in] producer A pointer to the consumer object
+*/
+void *consume(size_t num, BC_Consumer *consumer)
 {
 	int i;
-	for(i = 0; i < 25; i++)
+	for(i = 0; i < num; i++)
 		consumer->consume();
 	pthread_exit(NULL);
-}
-
-void logger_test()
-{
-	char *s = (char*) calloc(20, sizeof(char));
-	BC_Logger *my_log = new BC_Logger("log.txt");
-	int i;
-	for(i = 0; i < 10; i++)
-	{
-		snprintf(s, 20, "Event %d", i);
-		my_log->log_event(s);
-	}
-	free(s);
-	delete my_log;
 }

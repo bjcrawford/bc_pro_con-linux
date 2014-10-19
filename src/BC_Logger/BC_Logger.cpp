@@ -1,22 +1,33 @@
-/* File: BC_Logger.cpp
-   Author: Brett Crawford
-   Date: 2014-
-   Prof: Kwatny
-   TAs: Liang and Casey
-   Course: CIS 3207, Sec 2
-   Description:
+/**
+ * @file BC_Logger.cpp 
+ * @author Brett Crawford
+ * @brief A shared, event logging class
+ * @details
+ *  Course: CIS 3207, Sec 2
+ *  Prof: Kwatny
+ *  TAs: Liang and Casey
+ *  Date: 2014-10-18
+ *  Description: A shared, event logging class. This class is written for 
+ *  use with linux.
 */
-
 using namespace std;
 
 #include "BC_Logger.hpp"
 
+/**
+ * Constructs a shared, event logger object. 
+ * 
+ * @param[in] log_file The name of the log file in which to record events
+*/
 BC_Logger::BC_Logger(const char log_file[])
 {
 	lfp = fopen(log_file, "a");
 	pthread_mutex_init(&lock, NULL);
 }
 
+/**
+ * Destroys a shared, event logger object. 
+*/
 BC_Logger::~BC_Logger()
 {
 	fclose(lfp);
@@ -24,8 +35,10 @@ BC_Logger::~BC_Logger()
 }
 
 /**
- * Event can be at most 62 char
+ * Records an event within the log
  *
+ * @param[in] event The event to be logged
+ * @param Returns 1 on success, otherwise 0
 */
 int BC_Logger::log_event(const char event[])
 {
