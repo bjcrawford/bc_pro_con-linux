@@ -66,7 +66,7 @@ int main(int argc, char **argv)
 
 	for(i = 0; i < 4; i++)
 	{
-		struct produce_args *p_args = calloc(1, sizeof(produce_args));
+		struct produce_args *p_args = (struct produce_args*) calloc(1, sizeof(produce_args));
 		p_args->num = 20;
 		p_args->producer = producer[i];
 		pthread_create(&(producer_threads[i]), NULL, (void* (*)(void*)) &produce, p_args);
@@ -74,7 +74,7 @@ int main(int argc, char **argv)
 
 	for(i = 0; i < 3; i++)
 	{
-		struct consume_args *c_args = calloc(1, sizeof(consume_args));
+		struct consume_args *c_args = (struct consume_args*) calloc(1, sizeof(consume_args));
 		c_args->num = 25;
 		c_args->consumer = consumer[i];
 		pthread_create(&(consumer_threads[i]), NULL, (void* (*)(void*)) &consume, c_args);
@@ -97,11 +97,12 @@ int main(int argc, char **argv)
  * @param[in] num The number of productions to perform
  * @param[in] producer A pointer to the producer object
 */
-void *produce(size_t num, BC_Producer *producer)
+void *produce(void *args)
 {
-	int i;
-	for(i = 0; i < num; i++)
-		producer->produce();
+	size_t i;
+	struct produce_args *p_args = (struct produce_args*) args;
+	for(i = 0; i < p_args->num; i++)
+		p_args->producer->produce();
 	pthread_exit(NULL);
 }
 
@@ -111,10 +112,11 @@ void *produce(size_t num, BC_Producer *producer)
  * @param[in] num The number of consumptions to perform
  * @param[in] producer A pointer to the consumer object
 */
-void *consume(size_t num, BC_Consumer *consumer)
+void *consume(void *args)
 {
-	int i;
-	for(i = 0; i < num; i++)
-		consumer->consume();
+	size_t i;
+	struct consume_args *c_args = (struct consume_args*) args;
+	for(i = 0; i < c_args->num; i++)
+		c_args->consumer->consume();
 	pthread_exit(NULL);
 }
