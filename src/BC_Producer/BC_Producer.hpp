@@ -19,6 +19,11 @@
 #include "../BC_Buffer/BC_Buffer.hpp"
 #include "../BC_Logger/BC_Logger.hpp"
 
+/** 
+ * A producer class to be used with an implementation of the producer/consumer 
+ * problem. The producer class is to be used in conjunction with a shared 
+ * buffer and a shared logger as well as with other producers and consumers.
+*/
 class BC_Producer
 {
 	private:
