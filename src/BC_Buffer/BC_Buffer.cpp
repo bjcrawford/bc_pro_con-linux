@@ -1,10 +1,16 @@
-/* File: BC_Buffer.cpp
-   Author: Brett Crawford
-   Date: 2014-
-   Prof: Kwatny
-   TAs: Liang and Casey
-   Course: CIS 3207, Sec 2
-   Description:
+/**
+ * @file BC_Buffer.cpp 
+ * @author Brett Crawford
+ * @brief A shared, bounded buffer class
+ * @details
+ *  Course: CIS 3207, Sec 2
+ *  Prof: Kwatny
+ *  TAs: Liang and Casey
+ *  Date: 2014-10-18
+ *  Description: A sharedbounded buffer class to be used with an implementation
+ *  of the producer/consumer problem. The buffer class is to be used in 
+ *  conjunction with a shared logger as well as with producers and consumers. 
+ *  This class is written for use with linux.
 */
 
 using namespace std;
@@ -12,7 +18,12 @@ using namespace std;
 #include "BC_Buffer.hpp"
 #include <semaphore.h>
 
-
+/**
+ * Constructs a shared, bounded buffer object. 
+ * 
+ * @param[in] size The max number of elements in buffer
+ * @param[in] logger A pointer to the shared logger
+*/
 BC_Buffer::BC_Buffer(size_t size, BC_Logger *logger)
 {
 	first = last = 0;
@@ -26,6 +37,9 @@ BC_Buffer::BC_Buffer(size_t size, BC_Logger *logger)
 	sem_init(&unavailable, 0, 0);
 }
 
+/**
+ * Destroys a buffer object
+*/
 BC_Buffer::~BC_Buffer()
 {
 	size_t i;
@@ -37,6 +51,12 @@ BC_Buffer::~BC_Buffer()
 	sem_destroy(&unavailable);
 }
 
+/**
+ * Inserts an element in the buffer. If the buffer is full, this call will
+ * block until the insert can be performed. 
+ *
+ * @param[in] item A void pointer to the element to be inserted
+*/
 void BC_Buffer::insert(void *item)
 {
 	
@@ -45,6 +65,14 @@ void BC_Buffer::insert(void *item)
 	sem_post(&unavailable);
 }
 
+/**
+ * For internal class use only. Inserts an element in the buffer. If this 
+ * method has been called, the buffer is guaranteed to be in a not full 
+ * state. This call will block if the shared data of the buffer is currently
+ * in use.  
+ *
+ * @param[in] item A void pointer to the element to be inserted
+*/
 void BC_Buffer::insert_internal(void *item)
 {
 	int f, l;
@@ -55,11 +83,18 @@ void BC_Buffer::insert_internal(void *item)
 	f = first;
 	l = last;
 	pthread_mutex_unlock(&lock);
-	snprintf(event, 62, "Buffer: %d inserted, l - f: %d, f: %d, l: %d", *(int*)item, l - f, f, l);
+	snprintf(event, 62, "Buffer: %d inserted, l - f: %d, f: %d, l: %d", 
+		     *(int*)item, l - f, f, l);
 	logger->log_event(event);
 	free(event);
 }
 
+/**
+ * Removes an element from the buffer. If the buffer is empty, this call will
+ * block until the remove can be performed. 
+ *
+ * @return A void pointer to the element removed from the buffer
+*/
 void *BC_Buffer::remove()
 {
 	sem_wait(&unavailable);
@@ -69,6 +104,14 @@ void *BC_Buffer::remove()
 	return item;
 }
 
+/**
+ * For internal class use only. Removes an element from the buffer. If this 
+ * method has been called, the buffer is guaranteed to be in a not empty 
+ * state. This call will block if the shared data of the buffer is currently
+ * in use.  
+ *
+ * @return A void pointer to the element removed from the buffer
+*/
 void *BC_Buffer::remove_internal()
 {
 	int f, l;
@@ -81,7 +124,8 @@ void *BC_Buffer::remove_internal()
 	f = first;
 	l = last;
 	pthread_mutex_unlock(&lock);
-	snprintf(event, 62, "Buffer: %d removed, l - f: %d, f: %d, l: %d", *(int*)item, l - f, f, l);
+	snprintf(event, 62, "Buffer: %d removed, l - f: %d, f: %d, l: %d", 
+		     *(int*)item, l - f, f, l);
 	logger->log_event(event);
 	free(event);
 

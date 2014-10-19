@@ -1,5 +1,5 @@
 /**
- * @file BC_Producer.h
+ * @file BC_Producer.hpp
  * @author Brett Crawford
  * @brief A producer class header
  * @details

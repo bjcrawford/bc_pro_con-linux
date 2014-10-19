@@ -1,4 +1,4 @@
-/* File: BC_Logger.h
+/* File: BC_Logger.hpp
    Author: Brett Crawford
    Date: 2014-
    Prof: Kwatny

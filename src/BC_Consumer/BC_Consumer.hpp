@@ -1,5 +1,5 @@
 /**
- * @file BC_Consumer.h
+ * @file BC_Consumer.hpp
  * @author Brett Crawford
  * @brief A consumer class header
  * @details

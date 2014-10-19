@@ -10,7 +10,7 @@
  *  Description: A producer class to be used with an implementation of the 
  *  producer/consumer problem. The producer class is to be used in conjunction
  *  with a shared buffer and a shared logger as well as with other producers
- *  and consumers.
+ *  and consumers. This class is written for use with linux.
 */
 
 using namespace std;
