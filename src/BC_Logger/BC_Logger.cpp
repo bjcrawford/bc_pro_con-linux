@@ -10,6 +10,7 @@
  *  Description: A shared, event logging class. This class is written for 
  *  use with linux.
 */
+
 using namespace std;
 
 #include "BC_Logger.hpp"
@@ -35,7 +36,7 @@ BC_Logger::~BC_Logger()
 }
 
 /**
- * Records an event within the log
+ * Records an event within the log. The event can be at most 62 characters.
  *
  * @param[in] event The event to be logged
  * @param Returns 1 on success, otherwise 0
