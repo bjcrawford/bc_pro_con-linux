@@ -30,10 +30,8 @@ BC_Buffer::BC_Buffer(size_t size, BC_Logger *logger)
 	this->size = size;
 	this->logger = logger;
 	buffer = (void**) calloc(this->size, sizeof(void*));
-	pthread_mutexattr_t attr;
-	pthread_mutexattr_init(&attr);
-	pthread_mutex_init(&insert_lock, &attr);
-	pthread_mutex_init(&remove_lock, &attr);
+	pthread_mutex_init(&insert_lock, NULL);
+	pthread_mutex_init(&remove_lock, NULL);
 	sem_init(&available, 0, this->size);
 	sem_init(&unavailable, 0, 0);
 }
