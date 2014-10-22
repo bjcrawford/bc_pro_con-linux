@@ -19,6 +19,8 @@
 
 #include "../BC_Logger/BC_Logger.hpp"
 
+ typedef pthread_mutex_t mutex_t;
+
 /**
  * A shared, bounded buffer class to be used with an implementation of the 
  * producer/consumer problem. The buffer class is to be used in conjunction 
@@ -27,14 +29,15 @@
 class BC_Buffer
 {
 	private:
-		size_t first;           /**< The index of the first filled slot */
-		size_t last;            /**< The index of the first open slot */
-		size_t size;            /**< The max number of elements */
-		void **buffer;          /**< An array of void pointers */
-		BC_Logger *logger;      /**< A pointer to the shared logger */
-		pthread_mutex_t lock;   /**< Mutual exclusion lock */
-		sem_t available;        /**< Number of available slots in buffer */
-		sem_t unavailable;      /**< Number of unavailable slots in buffer */
+		size_t first;            /**< The index of the first filled slot */
+		size_t last;             /**< The index of the first open slot */
+		size_t size;             /**< The max number of elements */
+		void **buffer;           /**< An array of void pointers */
+		BC_Logger *logger;       /**< A pointer to the shared logger */
+		mutex_t insert_lock;     /**< Mutex lock for insertions */
+		mutex_t remove_lock;     /**< Mutex lock for removals */
+		sem_t available;         /**< Number of available slots in buffer */
+		sem_t unavailable;       /**< Number of unavailable slots in buffer */
 
 		void insert_internal(void*);
 		void *remove_internal();

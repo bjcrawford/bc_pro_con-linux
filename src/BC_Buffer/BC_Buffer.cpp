@@ -32,7 +32,8 @@ BC_Buffer::BC_Buffer(size_t size, BC_Logger *logger)
 	buffer = (void**) calloc(this->size, sizeof(void*));
 	pthread_mutexattr_t attr;
 	pthread_mutexattr_init(&attr);
-	pthread_mutex_init(&lock, &attr);
+	pthread_mutex_init(&insert_lock, &attr);
+	pthread_mutex_init(&remove_lock, &attr);
 	sem_init(&available, 0, this->size);
 	sem_init(&unavailable, 0, 0);
 }
@@ -46,7 +47,8 @@ BC_Buffer::~BC_Buffer()
 	for(i = first; i < last; i++)
 		free(buffer[i % size]);
 	free(buffer);
-	pthread_mutex_destroy(&lock);
+	pthread_mutex_destroy(&insert_lock);
+	pthread_mutex_destroy(&remove_lock);
 	sem_destroy(&available);
 	sem_destroy(&unavailable);
 }
@@ -75,16 +77,14 @@ void BC_Buffer::insert(void *item)
 */
 void BC_Buffer::insert_internal(void *item)
 {
-	int f, l;
+	int l;
 	char *event = (char*) calloc(62, sizeof(char));
-	pthread_mutex_lock(&lock);
+	pthread_mutex_lock(&insert_lock);
 	buffer[last % size] = item;
 	last++;
-	f = first;
 	l = last;
-	pthread_mutex_unlock(&lock);
-	snprintf(event, 62, "Buffer: %d inserted, l - f: %d, f: %d, l: %d", 
-		     *(int*)item, l - f, f, l);
+	pthread_mutex_unlock(&insert_lock);
+	snprintf(event, 62, "Buffer: %d inserted, last: %d",*(int*)item, l);
 	logger->log_event(event);
 	free(event);
 }
@@ -114,21 +114,18 @@ void *BC_Buffer::remove()
 */
 void *BC_Buffer::remove_internal()
 {
-	int f, l;
+	int f;
 	void *item;
 	char *event = (char*) calloc(62, sizeof(char));
-	pthread_mutex_lock(&lock);
+	pthread_mutex_lock(&remove_lock);
 	item = buffer[first % size];
 	buffer[first % size] = NULL;
 	first++;
 	f = first;
-	l = last;
-	pthread_mutex_unlock(&lock);
-	snprintf(event, 62, "Buffer: %d removed, l - f: %d, f: %d, l: %d", 
-		     *(int*)item, l - f, f, l);
+	pthread_mutex_unlock(&remove_lock);
+	snprintf(event, 62, "Buffer: %d removed, first: %d", *(int*)item, f);
 	logger->log_event(event);
 	free(event);
 
 	return item;
 }
-
