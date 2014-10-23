@@ -54,9 +54,7 @@ void BC_Producer::produce()
 	*item = rand() % 10000;
 	int temp = *item;
 	buffer->insert((void*) item);
-	snprintf(event, 
-			 62, 
-			 "Producer %d: %d produced into buffer", 
+	snprintf(event, 62, "Producer %d: %d produced into buffer", 
 			 this->id, temp);
 	logger->log_event(event);
 	free(event);
