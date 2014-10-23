@@ -19,12 +19,15 @@
 
 #include "../BC_Logger/BC_Logger.hpp"
 
- typedef pthread_mutex_t mutex_t;
+typedef pthread_mutex_t mutex_t;
 
 /**
  * A shared, bounded buffer class to be used with an implementation of the 
  * producer/consumer problem. The buffer class is to be used in conjunction 
- * with a shared logger as well as with producers and consumers.
+ * with a shared logger as well as with producers and consumers. The buffer
+ * will store elements of the type void* meaning the elements should be 
+ * allocated on the heap before insertion into the buffer. Any elements 
+ * not removed from the buffer before it is destroyed will be freed.
 */ 
 class BC_Buffer
 {
