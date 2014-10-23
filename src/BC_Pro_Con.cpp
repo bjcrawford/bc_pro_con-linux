@@ -47,6 +47,7 @@ typedef struct
 	BC_Consumer *consumer;  /**< A pointer to the consumer object */
 } consume_args;
 
+/** Function declarations */
 void *produce(void*);
 void *consume(void*);
 
@@ -114,6 +115,14 @@ int main(int argc, char **argv)
 		printf("Consumer %d thread joined\n", i);
 	}
 
+	/** Clean up */
+	delete(logger);
+	delete(buffer);
+	for(i = 0; i < NUM_PRODUCERS; i++)
+		delete(producer[i]);
+	for(i = 0; i < NUM_CONSUMERS; i++)
+		delete(consumer[i]);
+
 	printf("Main thread finished\n");
 
 	return EXIT_SUCCESS;
@@ -122,8 +131,8 @@ int main(int argc, char **argv)
 /**
  * Uses a producer object to perform num productions.
  *
- * @param[in] num The number of productions to perform
- * @param[in] producer A pointer to the producer object
+ * @param[in] args A void pointer to a produce_args struct containing 
+ *                 the necessary arguments.
 */
 void *produce(void *args)
 {
@@ -137,8 +146,8 @@ void *produce(void *args)
 /**
  * Uses a consumer object to perform num consumptions.
  *
- * @param[in] num The number of consumptions to perform
- * @param[in] producer A pointer to the consumer object
+ * @param[in] args A void pointer to a consume_args struct containing 
+ *                 the necessary arguments.
 */
 void *consume(void *args)
 {
