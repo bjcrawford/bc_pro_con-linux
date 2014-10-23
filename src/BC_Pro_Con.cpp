@@ -10,6 +10,7 @@
  *  Description: 
 */
 
+/** Includes */
 #include "BC_Buffer/BC_Buffer.hpp"
 #include "BC_Consumer/BC_Consumer.hpp"
 #include "BC_Logger/BC_Logger.hpp"
@@ -19,23 +20,32 @@
 #include <pthread.h>
 #include <stdio.h>
 
+/** Namespace */
 using namespace std;
 
-#define BUFFER_SIZE 20
+/** Constants */
+#define BUFFER_SIZE 20      /**< Size of the buffer */
+#define NUM_PRODUCERS 4     /**< Number of producers */
+#define NUM_CONSUMERS 3     /**< Number of consumers */
+#define NUM_PRODUCTIONS 20  /**< Number of productions each producer makes */
+#define NUM_CONSUMPTIONS 25 /**< Number of consumptions each consumer makes */
 
+/** The name of the log file to be used */
 const char log_file[] = "log.txt";
 
-struct produce_args
+/** A struct to hold the arguments to be passed to the produce function */
+typedef struct 
 {
-	size_t num;
-	BC_Producer *producer;
-};
+	size_t num;             /**< The number of productions to make */
+	BC_Producer *producer;  /**< A pointer to the producer object */
+} produce_args;
 
-struct consume_args
+/** A struct to hold the arguments to be passed to the consume function */
+typedef struct 
 {
-	size_t num;
-	BC_Consumer *consumer;
-};
+	size_t num;             /**< The number of consumptions to make */
+	BC_Consumer *consumer;  /**< A pointer to the consumer object */
+} consume_args;
 
 void *produce(void*);
 void *consume(void*);
@@ -45,46 +55,64 @@ void *consume(void*);
 */
 int main(int argc, char **argv)
 {
-	printf("Main thread Start\n");
+	printf("Main thread start\n");
 
+	/** Declare variables */
 	int i;
 	BC_Logger *logger;
 	BC_Buffer *buffer;
-	BC_Producer *producer[4];
-	BC_Consumer *consumer[3];
-	pthread_t producer_threads[4];
-	pthread_t consumer_threads[3];
+	BC_Producer *producer[NUM_PRODUCERS];
+	BC_Consumer *consumer[NUM_CONSUMERS];
+	pthread_t producer_threads[NUM_PRODUCERS];
+	pthread_t consumer_threads[NUM_CONSUMERS];
 
+	/** Instantiate logger and buffer objects */
 	logger = new BC_Logger(log_file);
 	buffer = new BC_Buffer(BUFFER_SIZE, logger);
 
-	for(i = 0; i < 4; i++)
+	/** Instantiate producers */
+	for(i = 0; i < NUM_PRODUCERS; i++)
 		producer[i] = new BC_Producer(i, buffer, logger);
 
-	for(i = 0; i < 3; i++)
+	/** Instantiate consumers */
+	for(i = 0; i < NUM_CONSUMERS; i++)
 		consumer[i] = new BC_Consumer(i, buffer, logger);
 
-	for(i = 0; i < 4; i++)
+	/** Create producer threads */
+	for(i = 0; i < NUM_PRODUCERS; i++)
 	{
-		struct produce_args *p_args = (struct produce_args*) calloc(1, sizeof(produce_args));
-		p_args->num = 20;
+		produce_args *p_args = (produce_args*) calloc(1, sizeof(produce_args));
+		p_args->num = NUM_PRODUCTIONS;
 		p_args->producer = producer[i];
-		pthread_create(&(producer_threads[i]), NULL, (void* (*)(void*)) &produce, p_args);
+		pthread_create(&(producer_threads[i]), NULL, 
+			           (void* (*)(void*)) &produce, p_args);
+		printf("Producer %d thread created\n", i);
 	}
 
-	for(i = 0; i < 3; i++)
+	/** Create consumer threads */
+	for(i = 0; i < NUM_CONSUMERS; i++)
 	{
-		struct consume_args *c_args = (struct consume_args*) calloc(1, sizeof(consume_args));
-		c_args->num = 25;
+		consume_args *c_args = (consume_args*) calloc(1, sizeof(consume_args));
+		c_args->num = NUM_CONSUMPTIONS;
 		c_args->consumer = consumer[i];
-		pthread_create(&(consumer_threads[i]), NULL, (void* (*)(void*)) &consume, c_args);
+		pthread_create(&(consumer_threads[i]), NULL, 
+			           (void* (*)(void*)) &consume, c_args);
+		printf("Consumer %d thread created\n", i);
 	}
 
-	for(i = 0; i < 4; i++)
+	/** Ensure producer threads finished */
+	for(i = 0; i < NUM_PRODUCERS; i++)
+	{
 		pthread_join(producer_threads[i], NULL);
+		printf("Producer %d thread joined\n", i);
+	}
 
-	for(i = 0; i < 3; i++)
+	/** Ensure consumer threads finished */
+	for(i = 0; i < NUM_CONSUMERS; i++)
+	{
 		pthread_join(consumer_threads[i], NULL);
+		printf("Consumer %d thread joined\n", i);
+	}
 
 	printf("Main thread finished\n");
 
@@ -100,7 +128,7 @@ int main(int argc, char **argv)
 void *produce(void *args)
 {
 	size_t i;
-	struct produce_args *p_args = (struct produce_args*) args;
+	produce_args *p_args = (produce_args*) args;
 	for(i = 0; i < p_args->num; i++)
 		p_args->producer->produce();
 	pthread_exit(NULL);
@@ -115,7 +143,7 @@ void *produce(void *args)
 void *consume(void *args)
 {
 	size_t i;
-	struct consume_args *c_args = (struct consume_args*) args;
+	consume_args *c_args = (consume_args*) args;
 	for(i = 0; i < c_args->num; i++)
 		c_args->consumer->consume();
 	pthread_exit(NULL);
