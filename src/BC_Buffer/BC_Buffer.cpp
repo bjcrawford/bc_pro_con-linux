@@ -78,7 +78,7 @@ void BC_Buffer::insert(void *item)
 void BC_Buffer::insert_internal(void *item)
 {
 	int l;
-	int temp = *(int*)item;
+	int temp = *(int*) item;
 	char *event = (char*) calloc(62, sizeof(char));
 	pthread_mutex_lock(&insert_lock);
 	buffer[last % size] = item;
@@ -125,7 +125,7 @@ void *BC_Buffer::remove_internal()
 	first++;
 	f = first;
 	pthread_mutex_unlock(&remove_lock);
-	snprintf(event, 62, "Buffer: %d removed                 first: %d", 
+	snprintf(event, 62, "Buffer: %d removed                  first: %d", 
 		     *(int*)item, f);
 	logger->log_event(event);
 	free(event);
