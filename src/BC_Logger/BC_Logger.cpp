@@ -69,7 +69,9 @@ int BC_Logger::log_event(const char event[])
 
 	/* Write event to log file */
 	pthread_mutex_lock(&lock);
+	/** CRITICAL SECTION ENTRY */
 	fwrite(fs, sizeof(char), strlen(fs), lfp);
+	/** CRITICAL SECTION EXIT */
 	pthread_mutex_unlock(&lock);
 
 	/* Free all dynamically allocated memory */
