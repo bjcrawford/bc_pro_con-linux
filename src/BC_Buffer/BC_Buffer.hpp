@@ -32,8 +32,8 @@ typedef pthread_mutex_t mutex_t;
 class BC_Buffer
 {
 	private:
-		size_t first;            /**< The index of the first filled slot */
-		size_t last;             /**< The index of the first open slot */
+		size_t firstFilled;      /**< The index of the first filled slot */
+		size_t nextEmpty;        /**< The index of the next empty slot */
 		size_t size;             /**< The max number of elements */
 		void **buffer;           /**< An array of void pointers */
 		BC_Logger *logger;       /**< A pointer to the shared logger */

@@ -28,7 +28,7 @@ using namespace std;
 */
 BC_Buffer::BC_Buffer(size_t size, BC_Logger *logger)
 {
-	first = last = 0;
+	firstFilled = nextEmpty = 0;
 	this->size = size;
 	this->logger = logger;
 	buffer = (void**) calloc(this->size, sizeof(void*));
@@ -44,7 +44,7 @@ BC_Buffer::BC_Buffer(size_t size, BC_Logger *logger)
 BC_Buffer::~BC_Buffer()
 {
 	size_t i;
-	for(i = first; i < last; i++)
+	for(i = firstFilled; i < nextEmpty; i++)
 		free(buffer[i % size]);
 	free(buffer);
 	pthread_mutex_destroy(&insert_lock);
@@ -81,11 +81,11 @@ void BC_Buffer::insert_internal(void *item)
 	int temp = *(int*) item;
 	char *event = (char*) calloc(62, sizeof(char));
 	pthread_mutex_lock(&insert_lock);
-	buffer[last % size] = item;
-	last++;
-	l = last;
+	buffer[nextEmpty % size] = item;
+	nextEmpty++;
+	l = nextEmpty;
 	pthread_mutex_unlock(&insert_lock);
-	snprintf(event, 62, "Buffer: %d inserted                 last: %d",
+	snprintf(event, 62, "Buffer: %d inserted             nextEmpty: %d",
 	         temp, l);
 	logger->log_event(event);
 	free(event);
@@ -120,12 +120,12 @@ void *BC_Buffer::remove_internal()
 	void *item;
 	char *event = (char*) calloc(62, sizeof(char));
 	pthread_mutex_lock(&remove_lock);
-	item = buffer[first % size];
-	buffer[first % size] = NULL;
-	first++;
-	f = first;
+	item = buffer[firstFilled % size];
+	buffer[firstFilled % size] = NULL;
+	firstFilled++;
+	f = firstFilled;
 	pthread_mutex_unlock(&remove_lock);
-	snprintf(event, 62, "Buffer: %d removed                  first: %d", 
+	snprintf(event, 62, "Buffer: %d removed              firstFilled: %d", 
 		     *(int*)item, f);
 	logger->log_event(event);
 	free(event);
