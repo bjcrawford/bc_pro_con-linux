@@ -42,9 +42,6 @@ class BC_Buffer
 		sem_t available;         /**< Number of available slots in buffer */
 		sem_t unavailable;       /**< Number of unavailable slots in buffer */
 
-		void insert_internal(void*);
-		void *remove_internal();
-
 	public:
 		BC_Buffer(size_t, BC_Logger*);
 		virtual ~BC_Buffer();

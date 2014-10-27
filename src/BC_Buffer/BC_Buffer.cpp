@@ -61,34 +61,25 @@ BC_Buffer::~BC_Buffer()
 */
 void BC_Buffer::insert(void *item)
 {
-	
-	sem_wait(&available);
-	this->insert_internal(item);
-	sem_post(&unavailable);
-}
-
-/**
- * For internal class use only. Inserts an element in the buffer. If this 
- * method has been called, the buffer is guaranteed to be in a not full 
- * state. This call will block if the shared data of the buffer is currently
- * in use.  
- *
- * @param[in] item A void pointer to the element to be inserted
-*/
-void BC_Buffer::insert_internal(void *item)
-{
 	int l;
 	int temp = *(int*) item;
 	char *event = (char*) calloc(62, sizeof(char));
+
+	sem_wait(&available);
 	pthread_mutex_lock(&insert_lock);
+
+	/** CRITICAL SECTION ENTRY */
 	buffer[nextEmpty % size] = item;
 	nextEmpty++;
 	l = nextEmpty;
-	pthread_mutex_unlock(&insert_lock);
 	snprintf(event, 62, "Buffer: %d inserted             nextEmpty: %d",
 	         temp, l);
 	logger->log_event(event);
 	free(event);
+	/** CRITICAL SECTION EXIT */
+
+	pthread_mutex_unlock(&insert_lock);
+	sem_post(&unavailable);
 }
 
 /**
@@ -99,36 +90,26 @@ void BC_Buffer::insert_internal(void *item)
 */
 void *BC_Buffer::remove()
 {
-	sem_wait(&unavailable);
-	void *item = this->remove_internal();
-	sem_post(&available);
-
-	return item;
-}
-
-/**
- * For internal class use only. Removes an element from the buffer. If this 
- * method has been called, the buffer is guaranteed to be in a not empty 
- * state. This call will block if the shared data of the buffer is currently
- * in use.  
- *
- * @return A void pointer to the element removed from the buffer
-*/
-void *BC_Buffer::remove_internal()
-{
 	int f;
 	void *item;
 	char *event = (char*) calloc(62, sizeof(char));
+
+	sem_wait(&unavailable);
 	pthread_mutex_lock(&remove_lock);
+
+	/** CRITICAL SECTION ENTRY */
 	item = buffer[firstFilled % size];
 	buffer[firstFilled % size] = NULL;
 	firstFilled++;
 	f = firstFilled;
-	pthread_mutex_unlock(&remove_lock);
 	snprintf(event, 62, "Buffer: %d removed              firstFilled: %d", 
 		     *(int*)item, f);
 	logger->log_event(event);
 	free(event);
+	/** CRITICAL SECTION EXIT */
+
+	pthread_mutex_unlock(&remove_lock);
+	sem_post(&available);
 
 	return item;
 }
