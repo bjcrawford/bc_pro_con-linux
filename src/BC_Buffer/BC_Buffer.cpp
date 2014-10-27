@@ -55,7 +55,8 @@ BC_Buffer::~BC_Buffer()
 
 /**
  * Inserts an element in the buffer. If the buffer is full, this call will
- * block until the insert can be performed. 
+ * block until the insert can be performed or if the shared insert data of 
+ * the buffer is currently in use.
  *
  * @param[in] item A void pointer to the element to be inserted
 */
@@ -84,7 +85,8 @@ void BC_Buffer::insert(void *item)
 
 /**
  * Removes an element from the buffer. If the buffer is empty, this call will
- * block until the remove can be performed. 
+ * block until the remove can be performed or if the shared remove data of the 
+ * buffer is currently in use.  
  *
  * @return A void pointer to the element removed from the buffer
 */
