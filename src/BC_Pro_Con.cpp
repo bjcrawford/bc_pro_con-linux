@@ -19,20 +19,9 @@
 #include <iostream>
 #include <pthread.h>
 #include <stdio.h>
- #include <string>
+#include <string>
 
-/** Namespace */
 using namespace std;
-
-/** Constants */
-//#define BUFFER_SIZE 20      /**< Size of the buffer */
-//#define NUM_PRODUCERS 4     /**< Number of producers */
-//#define NUM_CONSUMERS 3     /**< Number of consumers */
-//#define NUM_PRODUCTIONS 20  /**< Number of productions each producer makes */
-//#define NUM_CONSUMPTIONS 25 /**< Number of consumptions each consumer makes */
-
-/** The name of the log file to be used */
-//const char log_file[] = "log.txt";
 
 /** A struct to hold the arguments to be passed to the produce function */
 typedef struct 
@@ -57,20 +46,19 @@ void *consume(void*);
 */
 int main(int argc, char **argv)
 {
-	/** Declare variables */
 	size_t i;                /**< Iteration variable */
 	size_t buffer_size;      /**< Size of the buffer */
 	size_t num_producers;    /**< Number of producers */
 	size_t num_consumers;    /**< Number of consumers */
 	size_t num_productions;  /**< Number of productions each producer makes */
 	size_t num_consumptions; /**< Number of consumptions each consumer makes */
-	string log_file;
-	BC_Logger *logger;
-	BC_Buffer *buffer;
-	BC_Producer **producer;
-	BC_Consumer **consumer;
-	pthread_t *producer_threads;
-	pthread_t *consumer_threads;
+	string log_file;         /**< Name of log file to be used */
+	BC_Logger *logger;       /**< Pointer to the shared logger object */
+	BC_Buffer *buffer;       /**< Pointer to the shared buffer object */
+	BC_Producer **producer;  /**< Array of pointers to producer objects */
+	BC_Consumer **consumer;  /**< Array of pointers to consumer objects */
+	pthread_t *producer_threads; /**< Array of producer threads */
+	pthread_t *consumer_threads; /**< Array of consumer threads */
 
 	cout << "Main thread start\n\n";
 	cout << "Welcome to the Producer-Consumer solution by Brett Crawford\n\n";
@@ -91,24 +79,26 @@ int main(int argc, char **argv)
 	logger = new BC_Logger(log_file.c_str());
 	buffer = new BC_Buffer(buffer_size, logger);
 
-	//producer = (**BC_Producer) calloc(num_producers, sizeof(*BC_Producer));
+	/** Instantiate arrays of producers and consumers */
 	producer = new BC_Producer*[num_producers];
-	//consumer = (**BC_Consumer) calloc(num_consumers, sizeof(*BC_Consumer));
 	consumer = new BC_Consumer*[num_consumers];
+
+	/** Allocate space for producer and consumer threads arrays */
 	producer_threads = (pthread_t*) calloc(num_producers, sizeof(pthread_t));
 	consumer_threads = (pthread_t*) calloc(num_consumers, sizeof(pthread_t));
 
-	/** Instantiate producers */
+	/** Instantiate individual producers */
 	for(i = 0; i < num_producers; i++)
 		producer[i] = new BC_Producer(i, buffer, logger);
 
-	/** Instantiate consumers */
+	/** Instantiate individual consumers */
 	for(i = 0; i < num_consumers; i++)
 		consumer[i] = new BC_Consumer(i, buffer, logger);
 
-	/** Create producer threads */
+	/** Create producer args and producer threads */
 	for(i = 0; i < num_producers; i++)
 	{
+		// Create array of pointers to producer args, memory leak
 		produce_args *p_args = (produce_args*) calloc(1, sizeof(produce_args));
 		p_args->num = num_productions;
 		p_args->producer = producer[i];
@@ -117,9 +107,10 @@ int main(int argc, char **argv)
 		cout << "Producer " << (int) i << " thread created\n";
 	}
 
-	/** Create consumer threads */
+	/** Create consumer args and consumer threads */
 	for(i = 0; i < num_consumers; i++)
 	{
+		// Create array of pointers to consumer args, memory leak
 		consume_args *c_args = (consume_args*) calloc(1, sizeof(consume_args));
 		c_args->num = num_consumptions;
 		c_args->consumer = consumer[i];
@@ -149,6 +140,10 @@ int main(int argc, char **argv)
 		delete(producer[i]);
 	for(i = 0; i < num_consumers; i++)
 		delete(consumer[i]);
+	delete(producer);
+	delete(consumer);
+	free(producer_threads);
+	free(consumer_threads);
 
 	cout << "Log results saved in file " << log_file << "\n";
 
