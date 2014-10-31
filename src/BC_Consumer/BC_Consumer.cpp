@@ -50,7 +50,7 @@ void BC_Consumer::consume()
 	void *item = buffer->remove();
 	snprintf(event, 
 		     62, 
-		     "Consumer %d: %d consumed from buffer", 
+		     "Con %2d: %2d consumed", 
 		     this->id, 
 		     *(int*)item);
 	logger->log_event(event);

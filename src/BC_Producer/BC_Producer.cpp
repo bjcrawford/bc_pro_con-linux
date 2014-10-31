@@ -51,10 +51,10 @@ void BC_Producer::produce()
 	char *event = (char*) calloc(62, sizeof(char));
 	int *item = (int*) calloc(1, sizeof(int));
 	srand(clock() * time(NULL));
-	*item = rand() % 10000;
+	*item = rand() % 100;
 	int temp = *item;
 	buffer->insert((void*) item);
-	snprintf(event, 62, "Producer %d: %d produced into buffer", 
+	snprintf(event, 62, "Pro %2d: %2d produced", 
 			 this->id, temp);
 	logger->log_event(event);
 	free(event);
