@@ -10,7 +10,6 @@
  *  Description: 
 */
 
-/** Includes */
 #include "BC_Buffer/BC_Buffer.hpp"
 #include "BC_Consumer/BC_Consumer.hpp"
 #include "BC_Logger/BC_Logger.hpp"
@@ -18,7 +17,6 @@
 
 #include <iostream>
 #include <pthread.h>
-#include <stdio.h>
 #include <string>
 
 /** A struct to hold the arguments to be passed to the produce function */
@@ -53,26 +51,30 @@ int main(int argc, char **argv)
 	size_t num_consumers;    /**< Number of consumers */
 	size_t num_productions;  /**< Number of productions each producer makes */
 	size_t num_consumptions; /**< Number of consumptions each consumer makes */
-	std::string log_file;         /**< Name of log file to be used */
+	std::string log_file;    /**< Name of log file to be used */
 	BC_Logger *logger;       /**< Pointer to the shared logger object */
 	BC_Buffer *buffer;       /**< Pointer to the shared buffer object */
 	BC_Producer **producer;  /**< Array of pointers to producer objects */
 	BC_Consumer **consumer;  /**< Array of pointers to consumer objects */
-	pthread_t *producer_threads; /**< Array of producer threads */
-	pthread_t *consumer_threads; /**< Array of consumer threads */
+	pthread_t *pro_threads;  /**< Array of producer threads */
+	pthread_t *con_threads;  /**< Array of consumer threads */
 
 	std::cout << "Main thread start\n\n";
-	std::cout << "Welcome to the Producer-Consumer solution by Brett Crawford\n\n";
-	std::cout << "Notes: Buffer sizes of 10 or fewer will be visualized in the log\n\n";
+	std::cout << "Welcome to the Producer-Consumer ";
+	std::cout << "solution by Brett Crawford\n\n";
+	std::cout << "Notes: Buffer sizes of 10 or fewer ";
+	std::cout << "will be visualized in the log\n\n";
 	std::cout << "Please enter a size for the buffer: ";
 	std::cin >> buffer_size;
 	std::cout << "\nPlease enter the number of producers: ";
 	std::cin >> num_producers;
 	std::cout << "\nPlease enter the number of consumers: ";
 	std::cin >> num_consumers;
-	std::cout << "\nPlease enter the number of productions for each producer: ";
+	std::cout << "\nPlease enter the number of productions ";
+	std::cout << "for each producer: ";
 	std::cin >> num_productions;
-	std::cout << "\nPlease enter the number of consumptions for each consumer: ";
+	std::cout << "\nPlease enter the number of consumptions ";
+	std::cout << "for each consumer: ";
 	std::cin >> num_consumptions;
 	std::cout << "\nPlease enter a name for the log file: ";
 	std::cin >> log_file;
@@ -88,8 +90,8 @@ int main(int argc, char **argv)
 	consumer = new BC_Consumer*[num_consumers];
 
 	/** Allocate space for producer and consumer threads arrays */
-	producer_threads = (pthread_t*) calloc(num_producers, sizeof(pthread_t));
-	consumer_threads = (pthread_t*) calloc(num_consumers, sizeof(pthread_t));
+	pro_threads = (pthread_t*) calloc(num_producers, sizeof(pthread_t));
+	con_threads = (pthread_t*) calloc(num_consumers, sizeof(pthread_t));
 
 	/** Instantiate individual producers */
 	for(i = 0; i < num_producers; i++)
@@ -104,7 +106,7 @@ int main(int argc, char **argv)
 	{
 		// Create array of pointers to producer args, memory leak
 		produce_args *p_args = p_args_factory(num_productions, producer[i]);
-		pthread_create(&(producer_threads[i]), 
+		pthread_create(&(pro_threads[i]), 
 			           NULL, 
 			           (void* (*)(void*)) &produce, 
 			           p_args);
@@ -116,7 +118,7 @@ int main(int argc, char **argv)
 	{
 		// Create array of pointers to consumer args, memory leak
 		consume_args *c_args = c_args_factory(num_consumptions, consumer[i]);
-		pthread_create(&(consumer_threads[i]), 
+		pthread_create(&(con_threads[i]), 
 			           NULL, 
 			           (void* (*)(void*)) &consume, 
 			           c_args);
@@ -126,16 +128,18 @@ int main(int argc, char **argv)
 	/** Ensure producer threads finished */
 	for(i = 0; i < num_producers; i++)
 	{
-		pthread_join(producer_threads[i], NULL);
+		pthread_join(pro_threads[i], NULL);
 		std::cout << "Producer " << (int) i << " thread joined\n";
 	}
 
 	/** Ensure consumer threads finished */
 	for(i = 0; i < num_consumers; i++)
 	{
-		pthread_join(consumer_threads[i], NULL);
+		pthread_join(con_threads[i], NULL);
 		std::cout << "Consumer " << (int) i << " thread joined\n";
 	}
+
+	std::cout << "All thread finished\n";
 
 	/** Clean up */
 	delete(logger);
@@ -146,8 +150,8 @@ int main(int argc, char **argv)
 		delete(consumer[i]);
 	delete(producer);
 	delete(consumer);
-	free(producer_threads);
-	free(consumer_threads);
+	free(pro_threads);
+	free(con_threads);
 
 	std::cout << "Log results saved in file " << log_file << "\n";
 
