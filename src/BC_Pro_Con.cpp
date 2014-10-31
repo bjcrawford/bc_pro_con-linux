@@ -50,6 +50,7 @@ int main(int argc, char **argv)
 {
 	size_t i;                /**< Iteration variable */
 	size_t buffer_size;      /**< Size of the buffer */
+	size_t visual;           /**< A flag to enable buffer visualization */
 	size_t num_producers;    /**< Number of producers */
 	size_t num_consumers;    /**< Number of consumers */
 	size_t num_productions;  /**< Number of productions each producer makes */
@@ -64,6 +65,7 @@ int main(int argc, char **argv)
 
 	cout << "Main thread start\n\n";
 	cout << "Welcome to the Producer-Consumer solution by Brett Crawford\n\n";
+	cout << "Notes: Buffer sizes of 10 or fewer will be visualized in the log\n\n";
 	cout << "Please enter a size for the buffer: ";
 	cin >> buffer_size;
 	cout << "\nPlease enter the number of producers: ";
@@ -77,9 +79,11 @@ int main(int argc, char **argv)
 	cout << "\nPlease enter a name for the log file: ";
 	cin >> log_file;
 
+	visual = (buffer_size <= 10) ? 1 : 0;
+
 	/** Instantiate logger and buffer objects */
 	logger = new BC_Logger(log_file.c_str());
-	buffer = new BC_Buffer(buffer_size, logger);
+	buffer = new BC_Buffer(buffer_size, logger, visual);
 
 	/** Instantiate arrays of producers and consumers */
 	producer = new BC_Producer*[num_producers];

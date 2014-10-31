@@ -13,10 +13,7 @@
  *  This class is written for use with linux.
 */
 
-using namespace std;
-
 #include "BC_Buffer.hpp"
-#include <semaphore.h>
 
 /**
  * Constructs a shared, bounded buffer object. The buffer can hold elements
@@ -26,15 +23,14 @@ using namespace std;
  * @param[in] size The max number of elements in buffer
  * @param[in] logger A pointer to the shared logger
 */
-BC_Buffer::BC_Buffer(size_t size, BC_Logger *logger)
+BC_Buffer::BC_Buffer(size_t size, BC_Logger *logger, size_t visual)
 {
 	firstFilled = nextEmpty = 0;
 	this->size = size;
 	this->logger = logger;
+	this->visual = visual;
 	buffer = (void**) calloc(this->size, sizeof(void*));
 	pthread_mutex_init(&lock, NULL);
-	//pthread_mutex_init(&insert_lock, NULL);
-	//pthread_mutex_init(&remove_lock, NULL);
 	sem_init(&available, 0, this->size);
 	sem_init(&unavailable, 0, 0);
 }
@@ -49,8 +45,6 @@ BC_Buffer::~BC_Buffer()
 		free(buffer[i % size]);
 	free(buffer);
 	pthread_mutex_destroy(&lock);
-	//pthread_mutex_destroy(&insert_lock);
-	//pthread_mutex_destroy(&remove_lock);
 	sem_destroy(&available);
 	sem_destroy(&unavailable);
 }
@@ -64,26 +58,24 @@ BC_Buffer::~BC_Buffer()
 */
 void BC_Buffer::insert(void *item)
 {
-	int l;
 	int temp = *(int*) item;
-	char *event = (char*) calloc(62, sizeof(char));
+	char numStr[3];
+	std::string event = "";
 
 	sem_wait(&available);
 	pthread_mutex_lock(&lock);
-	//pthread_mutex_lock(&insert_lock);
 
 	/** CRITICAL SECTION ENTRY */
 	buffer[nextEmpty % size] = item;
 	nextEmpty++;
-	l = nextEmpty;
-	snprintf(event, 62, "Buffer: %d inserted             nextEmpty: %d",
-	         temp, l);
-	logger->log_event(event);
-	free(event);
+	snprintf(numStr, 3, "%2d", temp);
+	event += std::string("Buffer: ") + numStr + " inserted";
+	if(visual)
+		event += ", " + getBufferStr();
+	logger->log_event(event.c_str());
 	/** CRITICAL SECTION EXIT */
 
 	pthread_mutex_unlock(&lock);
-	//pthread_mutex_unlock(&insert_lock);
 	sem_post(&unavailable);
 }
 
@@ -96,28 +88,49 @@ void BC_Buffer::insert(void *item)
 */
 void *BC_Buffer::remove()
 {
-	int f;
 	void *item;
-	char *event = (char*) calloc(62, sizeof(char));
+	char numstr[5];
+	std::string event = "";
 
 	sem_wait(&unavailable);
 	pthread_mutex_lock(&lock);
-	//pthread_mutex_lock(&remove_lock);
 
 	/** CRITICAL SECTION ENTRY */
 	item = buffer[firstFilled % size];
 	buffer[firstFilled % size] = NULL;
 	firstFilled++;
-	f = firstFilled;
-	snprintf(event, 62, "Buffer: %d removed              firstFilled: %d", 
-		     *(int*)item, f);
-	logger->log_event(event);
-	free(event);
+	snprintf(numstr, 5, "%2d", *(int*)item);
+	event += std::string("Buffer: ") + numstr + " removed";
+	if(visual)
+		event += ",  " + getBufferStr();
+	logger->log_event(event.c_str());
 	/** CRITICAL SECTION EXIT */
 
 	pthread_mutex_unlock(&lock);
-	//pthread_mutex_unlock(&remove_lock);
 	sem_post(&available);
 
 	return item;
+}
+
+/**
+ * Returns a string containing a visualized representation of the buffer.
+ *
+ * @return A string containing the contents of the buffer
+*/
+std::string BC_Buffer::getBufferStr()
+{
+	size_t i;
+	char numstr[3];
+	std::string str = "State: ";
+	for(i = 0; i < size; i++)
+	{
+		if(buffer[i] != NULL)
+			snprintf(numstr, 3, "%2d", *(int*)buffer[i]);
+		else
+			snprintf(numstr, 3, "%s", "--");
+		str += "| " + std::string(numstr) + " ";
+	}
+	str += "|";
+
+	return str;
 }
