@@ -38,6 +38,8 @@ typedef struct
 } consume_args;
 
 /** Function declarations */
+produce_args* p_args_factory(size_t, BC_Producer*);
+consume_args* c_args_factory(size_t, BC_Consumer*);
 void *produce(void*);
 void *consume(void*);
 
@@ -99,11 +101,11 @@ int main(int argc, char **argv)
 	for(i = 0; i < num_producers; i++)
 	{
 		// Create array of pointers to producer args, memory leak
-		produce_args *p_args = (produce_args*) calloc(1, sizeof(produce_args));
-		p_args->num = num_productions;
-		p_args->producer = producer[i];
-		pthread_create(&(producer_threads[i]), NULL, 
-			           (void* (*)(void*)) &produce, p_args);
+		produce_args *p_args = p_args_factory(num_productions, producer[i]);
+		pthread_create(&(producer_threads[i]), 
+			           NULL, 
+			           (void* (*)(void*)) &produce, 
+			           p_args);
 		cout << "Producer " << (int) i << " thread created\n";
 	}
 
@@ -111,11 +113,11 @@ int main(int argc, char **argv)
 	for(i = 0; i < num_consumers; i++)
 	{
 		// Create array of pointers to consumer args, memory leak
-		consume_args *c_args = (consume_args*) calloc(1, sizeof(consume_args));
-		c_args->num = num_consumptions;
-		c_args->consumer = consumer[i];
-		pthread_create(&(consumer_threads[i]), NULL, 
-			           (void* (*)(void*)) &consume, c_args);
+		consume_args *c_args = c_args_factory(num_consumptions, consumer[i]);
+		pthread_create(&(consumer_threads[i]), 
+			           NULL, 
+			           (void* (*)(void*)) &consume, 
+			           c_args);
 		cout << "Consumer " << (int) i << " thread created\n";
 	}
 
@@ -150,6 +152,26 @@ int main(int argc, char **argv)
 	cout << "Main thread finished\n";
 
 	return EXIT_SUCCESS;
+}
+
+
+produce_args* p_args_factory(size_t num, BC_Producer* producer)
+{
+	produce_args *p_args = (produce_args*) calloc(1, sizeof(produce_args));
+	p_args->num = num;
+	p_args->producer = producer;
+
+	return p_args;
+}
+
+
+consume_args* c_args_factory(size_t num, BC_Consumer* consumer)
+{
+	consume_args *c_args = (consume_args*) calloc(1, sizeof(consume_args));
+	c_args->num = num;
+	c_args->consumer = consumer;
+
+	return c_args;
 }
 
 /**
