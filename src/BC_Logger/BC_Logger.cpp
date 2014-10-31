@@ -11,8 +11,6 @@
  *  use with linux.
 */
 
-using namespace std;
-
 #include "BC_Logger.hpp"
 
 /**

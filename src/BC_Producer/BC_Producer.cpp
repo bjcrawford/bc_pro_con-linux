@@ -13,8 +13,6 @@
  *  and consumers. This class is written for use with linux.
 */
 
-using namespace std;
-
 #include "BC_Producer.hpp"
 
 /**

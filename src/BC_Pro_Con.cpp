@@ -21,8 +21,6 @@
 #include <stdio.h>
 #include <string>
 
-using namespace std;
-
 /** A struct to hold the arguments to be passed to the produce function */
 typedef struct 
 {
@@ -55,7 +53,7 @@ int main(int argc, char **argv)
 	size_t num_consumers;    /**< Number of consumers */
 	size_t num_productions;  /**< Number of productions each producer makes */
 	size_t num_consumptions; /**< Number of consumptions each consumer makes */
-	string log_file;         /**< Name of log file to be used */
+	std::string log_file;         /**< Name of log file to be used */
 	BC_Logger *logger;       /**< Pointer to the shared logger object */
 	BC_Buffer *buffer;       /**< Pointer to the shared buffer object */
 	BC_Producer **producer;  /**< Array of pointers to producer objects */
@@ -63,21 +61,21 @@ int main(int argc, char **argv)
 	pthread_t *producer_threads; /**< Array of producer threads */
 	pthread_t *consumer_threads; /**< Array of consumer threads */
 
-	cout << "Main thread start\n\n";
-	cout << "Welcome to the Producer-Consumer solution by Brett Crawford\n\n";
-	cout << "Notes: Buffer sizes of 10 or fewer will be visualized in the log\n\n";
-	cout << "Please enter a size for the buffer: ";
-	cin >> buffer_size;
-	cout << "\nPlease enter the number of producers: ";
-	cin >> num_producers;
-	cout << "\nPlease enter the number of consumers: ";
-	cin >> num_consumers;
-	cout << "\nPlease enter the number of productions for each producer: ";
-	cin >> num_productions;
-	cout << "\nPlease enter the number of consumptions for each consumer: ";
-	cin >> num_consumptions;
-	cout << "\nPlease enter a name for the log file: ";
-	cin >> log_file;
+	std::cout << "Main thread start\n\n";
+	std::cout << "Welcome to the Producer-Consumer solution by Brett Crawford\n\n";
+	std::cout << "Notes: Buffer sizes of 10 or fewer will be visualized in the log\n\n";
+	std::cout << "Please enter a size for the buffer: ";
+	std::cin >> buffer_size;
+	std::cout << "\nPlease enter the number of producers: ";
+	std::cin >> num_producers;
+	std::cout << "\nPlease enter the number of consumers: ";
+	std::cin >> num_consumers;
+	std::cout << "\nPlease enter the number of productions for each producer: ";
+	std::cin >> num_productions;
+	std::cout << "\nPlease enter the number of consumptions for each consumer: ";
+	std::cin >> num_consumptions;
+	std::cout << "\nPlease enter a name for the log file: ";
+	std::cin >> log_file;
 
 	visual = (buffer_size <= 10) ? 1 : 0;
 
@@ -110,7 +108,7 @@ int main(int argc, char **argv)
 			           NULL, 
 			           (void* (*)(void*)) &produce, 
 			           p_args);
-		cout << "Producer " << (int) i << " thread created\n";
+		std::cout << "Producer " << (int) i << " thread created\n";
 	}
 
 	/** Create consumer args and consumer threads */
@@ -122,21 +120,21 @@ int main(int argc, char **argv)
 			           NULL, 
 			           (void* (*)(void*)) &consume, 
 			           c_args);
-		cout << "Consumer " << (int) i << " thread created\n";
+		std::cout << "Consumer " << (int) i << " thread created\n";
 	}
 
 	/** Ensure producer threads finished */
 	for(i = 0; i < num_producers; i++)
 	{
 		pthread_join(producer_threads[i], NULL);
-		cout << "Producer " << (int) i << " thread joined\n";
+		std::cout << "Producer " << (int) i << " thread joined\n";
 	}
 
 	/** Ensure consumer threads finished */
 	for(i = 0; i < num_consumers; i++)
 	{
 		pthread_join(consumer_threads[i], NULL);
-		cout << "Consumer " << (int) i << " thread joined\n";
+		std::cout << "Consumer " << (int) i << " thread joined\n";
 	}
 
 	/** Clean up */
@@ -151,9 +149,9 @@ int main(int argc, char **argv)
 	free(producer_threads);
 	free(consumer_threads);
 
-	cout << "Log results saved in file " << log_file << "\n";
+	std::cout << "Log results saved in file " << log_file << "\n";
 
-	cout << "Main thread finished\n";
+	std::cout << "Main thread finished\n";
 
 	return EXIT_SUCCESS;
 }
