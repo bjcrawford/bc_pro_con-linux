@@ -37,8 +37,9 @@ class BC_Buffer
 		size_t size;             /**< The max number of elements */
 		void **buffer;           /**< An array of void pointers */
 		BC_Logger *logger;       /**< A pointer to the shared logger */
-		mutex_t insert_lock;     /**< Mutex lock for insertions */
-		mutex_t remove_lock;     /**< Mutex lock for removals */
+		mutex_t lock;            /**< Mutex lock for buffer access */
+		//mutex_t insert_lock;     /**< Mutex lock for insertions */
+		//mutex_t remove_lock;     /**< Mutex lock for removals */
 		sem_t available;         /**< Number of available slots in buffer */
 		sem_t unavailable;       /**< Number of unavailable slots in buffer */
 

@@ -32,8 +32,9 @@ BC_Buffer::BC_Buffer(size_t size, BC_Logger *logger)
 	this->size = size;
 	this->logger = logger;
 	buffer = (void**) calloc(this->size, sizeof(void*));
-	pthread_mutex_init(&insert_lock, NULL);
-	pthread_mutex_init(&remove_lock, NULL);
+	pthread_mutex_init(&lock, NULL);
+	//pthread_mutex_init(&insert_lock, NULL);
+	//pthread_mutex_init(&remove_lock, NULL);
 	sem_init(&available, 0, this->size);
 	sem_init(&unavailable, 0, 0);
 }
@@ -47,8 +48,9 @@ BC_Buffer::~BC_Buffer()
 	for(i = firstFilled; i < nextEmpty; i++)
 		free(buffer[i % size]);
 	free(buffer);
-	pthread_mutex_destroy(&insert_lock);
-	pthread_mutex_destroy(&remove_lock);
+	pthread_mutex_destroy(&lock);
+	//pthread_mutex_destroy(&insert_lock);
+	//pthread_mutex_destroy(&remove_lock);
 	sem_destroy(&available);
 	sem_destroy(&unavailable);
 }
@@ -67,7 +69,8 @@ void BC_Buffer::insert(void *item)
 	char *event = (char*) calloc(62, sizeof(char));
 
 	sem_wait(&available);
-	pthread_mutex_lock(&insert_lock);
+	pthread_mutex_lock(&lock);
+	//pthread_mutex_lock(&insert_lock);
 
 	/** CRITICAL SECTION ENTRY */
 	buffer[nextEmpty % size] = item;
@@ -79,7 +82,8 @@ void BC_Buffer::insert(void *item)
 	free(event);
 	/** CRITICAL SECTION EXIT */
 
-	pthread_mutex_unlock(&insert_lock);
+	pthread_mutex_unlock(&lock);
+	//pthread_mutex_unlock(&insert_lock);
 	sem_post(&unavailable);
 }
 
@@ -97,7 +101,8 @@ void *BC_Buffer::remove()
 	char *event = (char*) calloc(62, sizeof(char));
 
 	sem_wait(&unavailable);
-	pthread_mutex_lock(&remove_lock);
+	pthread_mutex_lock(&lock);
+	//pthread_mutex_lock(&remove_lock);
 
 	/** CRITICAL SECTION ENTRY */
 	item = buffer[firstFilled % size];
@@ -110,7 +115,8 @@ void *BC_Buffer::remove()
 	free(event);
 	/** CRITICAL SECTION EXIT */
 
-	pthread_mutex_unlock(&remove_lock);
+	pthread_mutex_unlock(&lock);
+	//pthread_mutex_unlock(&remove_lock);
 	sem_post(&available);
 
 	return item;

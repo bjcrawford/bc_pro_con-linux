@@ -36,7 +36,7 @@ BC_Logger::~BC_Logger()
 }
 
 /**
- * Records an event within the log. The event can be at most 62 characters.
+ * Records an event within the log. The event can be at most 200 characters.
  *
  * @param[in] event The event to be logged
  * @param Returns 1 on success, otherwise 0
@@ -48,7 +48,7 @@ int BC_Logger::log_event(const char event[])
 	/* String to hold microseconds */
 	char *ms = (char*) calloc(7, sizeof(char));
 	/* String to hold date, time, microseconds, and event  (full string)*/
-	int fs_size = 80;
+	int fs_size = 218;
 	char *fs = (char*) calloc(fs_size, sizeof(char));
 
 	/* Get date and time */
