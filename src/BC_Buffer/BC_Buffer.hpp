@@ -10,8 +10,8 @@
  *  Description: The header for the buffer class.
 */
 
-#ifndef BC_BUFFER_H_
-#define BC_BUFFER_H_
+#ifndef BC_BUFFER_HPP_
+#define BC_BUFFER_HPP_
 
 #include <stdlib.h>
 #include <string>
@@ -53,4 +53,4 @@ class BC_Buffer
 		void *remove();
 };
 
-#endif /* BC_BUFFER_H_ */
+#endif /* BC_BUFFER_HPP_ */

@@ -10,8 +10,8 @@
  *  Description: The header for the producer class.
 */
 
-#ifndef BC_PRODUCER_H_
-#define BC_PRODUCER_H_
+#ifndef BC_PRODUCER_HPP_
+#define BC_PRODUCER_HPP_
 
 #include <stdlib.h>
 #include <time.h>
@@ -38,4 +38,4 @@ class BC_Producer
 		void produce();
 };
 
-#endif /* BC_PRODUCER_H_ */
+#endif /* BC_PRODUCER_HPP_ */
