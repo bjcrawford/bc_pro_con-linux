@@ -156,7 +156,12 @@ int main(int argc, char **argv)
 	return EXIT_SUCCESS;
 }
 
-
+/**
+ * Creates and returns a produce_args struct filled with the given values.
+ * The caller is responsible for freeing the allocated structure.
+ *
+ * @return A pointer to a dynamically allocated produce_args struct
+*/
 produce_args* p_args_factory(size_t num, BC_Producer* producer)
 {
 	produce_args *p_args = (produce_args*) calloc(1, sizeof(produce_args));
@@ -166,7 +171,12 @@ produce_args* p_args_factory(size_t num, BC_Producer* producer)
 	return p_args;
 }
 
-
+/**
+ * Creates and returns a consume_args struct filled with the given values.
+ * The caller is responsible for freeing the allocated structure.
+ *
+ * @return A pointer to a dynamically allocated consume_args struct
+*/
 consume_args* c_args_factory(size_t num, BC_Consumer* consumer)
 {
 	consume_args *c_args = (consume_args*) calloc(1, sizeof(consume_args));
