@@ -53,7 +53,7 @@ int BC_Logger::log_event(const char event[])
 
 	/* Get date and time */
 	time_t now = time(NULL);
-	strftime(dts, 21, "%Y-%m-%d %H:%M:%S:", localtime(&now));
+	strftime(dts, 21, "%4Y-%2m-%2d %2H:%2M:%6S:", localtime(&now));
 
 	/* Get microseconds */
 	struct timeval tvp;

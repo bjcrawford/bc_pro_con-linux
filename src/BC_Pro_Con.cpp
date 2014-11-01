@@ -18,11 +18,13 @@
 #include <iostream>
 #include <pthread.h>
 #include <string>
+#include <unistd.h>
 
 /** A struct to hold the arguments to be passed to the produce function */
 typedef struct 
 {
 	size_t num;             /**< The number of productions to make */
+	size_t delay;           /**< The delay (microsecs) between productions */
 	BC_Producer *producer;  /**< A pointer to the producer object */
 } produce_args;
 
@@ -30,12 +32,13 @@ typedef struct
 typedef struct 
 {
 	size_t num;             /**< The number of consumptions to make */
+	size_t delay;           /**< The delay (microsecs) between consumptions */
 	BC_Consumer *consumer;  /**< A pointer to the consumer object */
 } consume_args;
 
 /** Function declarations */
-produce_args* p_args_factory(size_t, BC_Producer*);
-consume_args* c_args_factory(size_t, BC_Consumer*);
+produce_args* p_args_factory(size_t, size_t, BC_Producer*);
+consume_args* c_args_factory(size_t, size_t, BC_Consumer*);
 void *produce(void*);
 void *consume(void*);
 
@@ -51,6 +54,8 @@ int main(int argc, char **argv)
 	size_t num_consumers;    /**< Number of consumers */
 	size_t num_productions;  /**< Number of productions each producer makes */
 	size_t num_consumptions; /**< Number of consumptions each consumer makes */
+	size_t pro_delay;        /**< Delay (microsecs) between productions */
+	size_t con_delay;        /**< Delay (microsecs) between consumptions */
 	std::string log_file;    /**< Name of log file to be used */
 	BC_Logger *logger;       /**< Pointer to the shared logger object */
 	BC_Buffer *buffer;       /**< Pointer to the shared buffer object */
@@ -76,6 +81,12 @@ int main(int argc, char **argv)
 	std::cout << "\nPlease enter the number of consumptions ";
 	std::cout << "for each consumer: ";
 	std::cin >> num_consumptions;
+	std::cout << "\nPlease enter the delay in microseconds ";
+	std::cout << "between productions: ";
+	std::cin >> pro_delay;
+	std::cout << "\nPlease enter the delay in microseconds ";
+	std::cout << "between consumptions: ";
+	std::cin >> con_delay;
 	std::cout << "\nPlease enter a name for the log file: ";
 	std::cin >> log_file;
 
@@ -105,7 +116,7 @@ int main(int argc, char **argv)
 	for(i = 0; i < num_producers; i++)
 	{
 		// Create array of pointers to producer args, memory leak
-		produce_args *p_args = p_args_factory(num_productions, producer[i]);
+		produce_args *p_args = p_args_factory(num_productions, pro_delay, producer[i]);
 		pthread_create(&(pro_threads[i]), 
 			           NULL, 
 			           (void* (*)(void*)) &produce, 
@@ -117,7 +128,7 @@ int main(int argc, char **argv)
 	for(i = 0; i < num_consumers; i++)
 	{
 		// Create array of pointers to consumer args, memory leak
-		consume_args *c_args = c_args_factory(num_consumptions, consumer[i]);
+		consume_args *c_args = c_args_factory(num_consumptions, con_delay, consumer[i]);
 		pthread_create(&(con_threads[i]), 
 			           NULL, 
 			           (void* (*)(void*)) &consume, 
@@ -166,10 +177,11 @@ int main(int argc, char **argv)
  *
  * @return A pointer to a dynamically allocated produce_args struct
 */
-produce_args* p_args_factory(size_t num, BC_Producer* producer)
+produce_args* p_args_factory(size_t num, size_t delay, BC_Producer* producer)
 {
 	produce_args *p_args = (produce_args*) calloc(1, sizeof(produce_args));
 	p_args->num = num;
+	p_args->delay = delay;
 	p_args->producer = producer;
 
 	return p_args;
@@ -181,10 +193,11 @@ produce_args* p_args_factory(size_t num, BC_Producer* producer)
  *
  * @return A pointer to a dynamically allocated consume_args struct
 */
-consume_args* c_args_factory(size_t num, BC_Consumer* consumer)
+consume_args* c_args_factory(size_t num, size_t delay, BC_Consumer* consumer)
 {
 	consume_args *c_args = (consume_args*) calloc(1, sizeof(consume_args));
 	c_args->num = num;
+	c_args->delay = delay;
 	c_args->consumer = consumer;
 
 	return c_args;
@@ -201,7 +214,10 @@ void *produce(void *args)
 	size_t i;
 	produce_args *p_args = (produce_args*) args;
 	for(i = 0; i < p_args->num; i++)
+	{
+		usleep(p_args->delay);
 		p_args->producer->produce();
+	}
 	pthread_exit(NULL);
 }
 
@@ -216,6 +232,9 @@ void *consume(void *args)
 	size_t i;
 	consume_args *c_args = (consume_args*) args;
 	for(i = 0; i < c_args->num; i++)
+	{
+		usleep(c_args->delay);
 		c_args->consumer->consume();
+	}
 	pthread_exit(NULL);
 }
