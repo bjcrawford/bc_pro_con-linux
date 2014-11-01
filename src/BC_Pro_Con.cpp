@@ -7,7 +7,18 @@
  *  Prof: Kwatny
  *  TAs: Liang and Casey
  *  Date: 2014-10-18
- *  Description: 
+ *  Description: This file contains the main function of the solution
+ *  to the producer/consumer problem. The solution consists of an object
+ *  oriented design which uses shared objects (the buffer and event logger)
+ *  to acheive synchronization between the producers and consumers. This 
+ *  solution allows the user to specify the values of certain program
+ *  variables such as the size of the buffer, number of producers and 
+ *  consumers to use, the number of produtions and consumptions for each
+ *  producer and consumer to make, and the delay between productions and
+ *  consumptions. The events occuring (insertions and removals from the 
+ *  buffer) will be recorded to a file specified by the user. For buffer
+ *  sizes of 10 or fewer, the buffer will be visualized with the event
+ *  log file. This program was written for use in Linux.
 */
 
 #include "BC_Buffer/BC_Buffer.hpp"
@@ -49,7 +60,6 @@ int main(int argc, char **argv)
 {
 	size_t i;                /**< Iteration variable */
 	size_t buffer_size;      /**< Size of the buffer */
-	size_t visual;           /**< A flag to enable buffer visualization */
 	size_t num_producers;    /**< Number of producers */
 	size_t num_consumers;    /**< Number of consumers */
 	size_t num_productions;  /**< Number of productions each producer makes */
@@ -90,11 +100,9 @@ int main(int argc, char **argv)
 	std::cout << "\nPlease enter a name for the log file: ";
 	std::cin >> log_file;
 
-	visual = (buffer_size <= 10) ? 1 : 0;
-
 	/** Instantiate logger and buffer objects */
 	logger = new BC_Logger(log_file.c_str());
-	buffer = new BC_Buffer(buffer_size, logger, visual);
+	buffer = new BC_Buffer(buffer_size, logger, (buffer_size <= 10) ? 1 : 0);
 
 	/** Instantiate arrays of producers and consumers */
 	producer = new BC_Producer*[num_producers];
@@ -104,18 +112,15 @@ int main(int argc, char **argv)
 	pro_threads = (pthread_t*) calloc(num_producers, sizeof(pthread_t));
 	con_threads = (pthread_t*) calloc(num_consumers, sizeof(pthread_t));
 
-	/** Instantiate individual producers */
+	/** Instantiate individual producers and consumers */
 	for(i = 0; i < num_producers; i++)
 		producer[i] = new BC_Producer(i, buffer, logger);
-
-	/** Instantiate individual consumers */
 	for(i = 0; i < num_consumers; i++)
 		consumer[i] = new BC_Consumer(i, buffer, logger);
 
 	/** Create producer args and producer threads */
 	for(i = 0; i < num_producers; i++)
 	{
-		// Create array of pointers to producer args, memory leak
 		produce_args *p_args = p_args_factory(num_productions, pro_delay, 
 			                                  producer[i]);
 		pthread_create(&(pro_threads[i]), 
@@ -128,7 +133,6 @@ int main(int argc, char **argv)
 	/** Create consumer args and consumer threads */
 	for(i = 0; i < num_consumers; i++)
 	{
-		// Create array of pointers to consumer args, memory leak
 		consume_args *c_args = c_args_factory(num_consumptions, con_delay, 
 			                                  consumer[i]);
 		pthread_create(&(con_threads[i]), 
@@ -220,6 +224,7 @@ void *produce(void *args)
 		usleep(p_args->delay);
 		p_args->producer->produce();
 	}
+	free(p_args);
 	pthread_exit(NULL);
 }
 
@@ -238,5 +243,6 @@ void *consume(void *args)
 		usleep(c_args->delay);
 		c_args->consumer->consume();
 	}
+	free(c_args);
 	pthread_exit(NULL);
 }
