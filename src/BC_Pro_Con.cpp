@@ -116,7 +116,8 @@ int main(int argc, char **argv)
 	for(i = 0; i < num_producers; i++)
 	{
 		// Create array of pointers to producer args, memory leak
-		produce_args *p_args = p_args_factory(num_productions, pro_delay, producer[i]);
+		produce_args *p_args = p_args_factory(num_productions, pro_delay, 
+			                                  producer[i]);
 		pthread_create(&(pro_threads[i]), 
 			           NULL, 
 			           (void* (*)(void*)) &produce, 
@@ -128,7 +129,8 @@ int main(int argc, char **argv)
 	for(i = 0; i < num_consumers; i++)
 	{
 		// Create array of pointers to consumer args, memory leak
-		consume_args *c_args = c_args_factory(num_consumptions, con_delay, consumer[i]);
+		consume_args *c_args = c_args_factory(num_consumptions, con_delay, 
+			                                  consumer[i]);
 		pthread_create(&(con_threads[i]), 
 			           NULL, 
 			           (void* (*)(void*)) &consume, 

@@ -41,6 +41,7 @@ BC_Buffer::BC_Buffer(size_t size, BC_Logger *logger, size_t visual)
 BC_Buffer::~BC_Buffer()
 {
 	size_t i;
+	pthread_mutex_lock(&lock);
 	for(i = firstFilled; i < nextEmpty; i++)
 		free(buffer[i % size]);
 	free(buffer);
@@ -89,7 +90,7 @@ void BC_Buffer::insert(void *item)
 void *BC_Buffer::remove()
 {
 	void *item;
-	char numstr[5];
+	char numstr[3];
 	std::string event = "";
 
 	sem_wait(&unavailable);
@@ -99,7 +100,7 @@ void *BC_Buffer::remove()
 	item = buffer[firstFilled % size];
 	buffer[firstFilled % size] = NULL;
 	firstFilled++;
-	snprintf(numstr, 5, "%2d", *(int*)item);
+	snprintf(numstr, 3, "%2d", *(int*)item);
 	event += std::string("Buffer: ") + numstr + " removed";
 	if(visual)
 		event += ",  " + getBufferStr();
